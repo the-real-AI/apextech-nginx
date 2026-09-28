@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Документация и API — ApexTech Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0b0f19;
+            --bg-card: rgba(23, 31, 48, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --radius-md: 14px;
+            --radius-lg: 24px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-top: 100px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+        
+        header { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); z-index: 100; }
+        .nav { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+        .logo { font-weight: 800; font-size: 1.3rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; }
+        .logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+        .docs-grid { display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem; margin-top: 2rem; }
+        .sidebar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; height: fit-content; position: sticky; top: 100px; }
+        .menu-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 0.05em; }
+        .doc-menu { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+        .doc-menu a { color: var(--text-sub); text-decoration: none; font-size: 0.95rem; transition: all 0.2s; }
+        .doc-menu a:hover { color: var(--primary); padding-left: 0.25rem; }
+
+        .content-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem; }
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1rem; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; color: var(--primary); }
+        p { color: var(--text-sub); line-height: 1.7; margin-bottom: 1.25rem; }
+
+        .code-block { background: #090d16; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; font-family: 'Fira Code', monospace; font-size: 0.9rem; color: #38bdf8; margin-bottom: 1.5rem; }
+        .btn-back { display: inline-block; padding: 0.65rem 1.25rem; background: var(--primary); color: #fff; text-decoration: none; border-radius: 10px; font-weight: 600; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav">
+            <a href="/" class="logo"><div class="logo-icon">A</div> ApexTech Docs</a>
+            <a href="/" class="btn-back">← На главную</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Документация и Руководство Nginx</h1>
+        <p>Технические спецификации, параметры маршрутизации и справочник команд локального веб-сервера.</p>
+
+        <div class="docs-grid">
+            <aside class="sidebar">
+                <div class="menu-title">Разделы Документации</div>
+                <ul class="doc-menu">
+                    <li><a href="#intro">Введение</a></li>
+                    <li><a href="#config">Файл nginx.conf</a></li>
+                    <li><a href="#routing">Маршрутизация</a></li>
+                    <li><a href="#commands">Команды CLI</a></li>
+                </ul>
+            </aside>
+
+            <main class="content-box">
+                <section id="intro">
+                    <h2>1. Введение</h2>
+                    <p>Веб-платформа ApexTech работает на высокопроизводительном сервере Nginx v1.26. Сервер обрабатывает входящие сокет-соединения на порту 80 с привязкой доменного имени <code>akram.local</code> (192.168.60.38).</p>
+                </section>
+
+                <section id="config">
+                    <h2>2. Конфигурация Nginx</h2>
+                    <p>Основные параметры сервера прописаны в файле <code>C:\nginx\conf\nginx.conf</code>:</p>
+                    <div class="code-block">
+server {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;listen       80;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;server_name  192.168.60.38 akram.local;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;location / {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root   html;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index  index.html index.htm;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;error_page 404 /404.html;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;location = /404.html {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root html;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}
+                    </div>
+                </section>
+
+                <section id="commands">
+                    <h2>3. Команды управления CLI</h2>
+                    <div class="code-block">
+# Перезагрузить конфигурацию сервера без остановки<br>
+cd C:\nginx; .\nginx.exe -s reload<br><br>
+# Проверить синтаксис конфига на ошибки<br>
+cd C:\nginx; .\nginx.exe -t
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

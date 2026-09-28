@@ -1,0 +1,15 @@
+# Nginx binary and system files
+*.exe
+*.dll
+*.pid
+temp/
+logs/*.log
+
+# OS generated
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/

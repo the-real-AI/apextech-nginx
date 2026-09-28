@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О платформе ApexTech — Работающая страница</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: rgba(23, 31, 48, 0.8);
+            --primary: #6366f1;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-image: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+        p { color: var(--text-sub); line-height: 1.6; margin-bottom: 2rem; }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.8rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">
+            <span>● Страница найдена (HTTP 200 OK)</span>
+        </div>
+        <h1>Тариф «Старт» Активирован!</h1>
+        <p>Вы успешно перешли на существующую страницу сайта. Эта страница физически существует на сервере Nginx (<code>C:\nginx\html\about.html</code>), поэтому загружается без ошибок.</p>
+        <a href="/" class="btn">Вернуться на главную</a>
+    </div>
+</body>
+</html>

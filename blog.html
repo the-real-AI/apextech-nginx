@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Блог и Новости — ApexTech Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0b0f19;
+            --bg-card: rgba(23, 31, 48, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --accent: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --radius-lg: 20px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-top: 100px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        header { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); z-index: 100; }
+        .nav { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+        .logo { font-weight: 800; font-size: 1.3rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; }
+        .logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.75rem; margin-top: 2.5rem; }
+        .blog-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; transition: transform 0.2s; }
+        .blog-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+        .blog-tag { color: var(--accent); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; display: block; }
+        .blog-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+        .blog-desc { color: var(--text-sub); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem; }
+        .btn-back { display: inline-block; padding: 0.65rem 1.25rem; background: var(--primary); color: #fff; text-decoration: none; border-radius: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav">
+            <a href="/" class="logo"><div class="logo-icon">A</div> ApexTech Blog</a>
+            <a href="/" class="btn-back">← На главную</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 style="font-size:2.4rem; font-weight:800;">Блог и Новости Платформы</h1>
+        <p style="color:var(--text-sub); margin-top:0.5rem;">Последние статьи о веб-разработке, Nginx и оптимизации серверов.</p>
+
+        <div class="blog-grid">
+            <div class="blog-card">
+                <span class="blog-tag">Оптимизация</span>
+                <h3 class="blog-title">Как ускорить отклик Nginx до 5 мс</h3>
+                <p class="blog-desc">Разбираем тонкости настройки памяти-кэша, Gzip сжатия и параметров keepalive_timeout.</p>
+                <a href="/" style="color:var(--primary); text-decoration:none; font-weight:600;">Читать статью →</a>
+            </div>
+            <div class="blog-card">
+                <span class="blog-tag">Безопасность</span>
+                <h3 class="blog-title">Настройка SSL/TLS и HTTPS</h3>
+                <p class="blog-desc">Пошаговая инструкция по выпуску и подключению бесплатного сертификата Let's Encrypt.</p>
+                <a href="/" style="color:var(--primary); text-decoration:none; font-weight:600;">Читать статью →</a>
+            </div>
+            <div class="blog-card">
+                <span class="blog-tag">Архитектура</span>
+                <h3 class="blog-title">Reverse Proxy для Node.js & Python</h3>
+                <p class="blog-desc">Связываем Nginx с бэкенд-приложениями для распределения нагрузки и защиты сокетов.</p>
+                <a href="/" style="color:var(--primary); text-decoration:none; font-weight:600;">Читать статью →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

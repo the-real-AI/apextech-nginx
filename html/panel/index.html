@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexTech — Личный Кабинет / Панель Управления (Port 8080)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080c14;
+            --sidebar-bg: #0d1422;
+            --card: rgba(18, 26, 42, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.25);
+            --orange: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --text-muted: #475569;
+            --input-bg: rgba(10, 15, 25, 0.7);
+            --radius: 12px;
+            --transition: all 0.25s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* ──── Sidebar ──── */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            flex-shrink: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.25rem;
+            text-decoration: none;
+        }
+
+        .sidebar-logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .sidebar-logo-text { color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.1rem; }
+        .sidebar-logo-badge { font-size: 0.65rem; color: var(--accent); font-weight: 600; margin-top: -2px; }
+
+        .sidebar-section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 0 0.75rem;
+            margin-bottom: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+        .sidebar-item a, .sidebar-item button {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.7rem 0.75rem; border-radius: var(--radius);
+            color: var(--text-sub); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+            transition: var(--transition); width: 100%; background: none; border: none; cursor: pointer; text-align: left;
+        }
+        .sidebar-item a:hover, .sidebar-item button:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .sidebar-item.active a { background: rgba(99, 102, 241, 0.15); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2); }
+        .sidebar-icon { font-size: 1.05rem; width: 20px; text-align: center; }
+
+        .sidebar-port-tag {
+            margin-top: auto;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* ──── Main Content ──── */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ──── Topbar ──── */
+        .topbar {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            background: rgba(8, 12, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .topbar-title { font-size: 1.1rem; font-weight: 700; }
+        .topbar-right { display: flex; align-items: center; gap: 1rem; }
+
+        .topbar-badge {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 0.9rem;
+            background: var(--accent-glow);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 9999px;
+            font-size: 0.8rem; font-weight: 600; color: var(--accent);
+        }
+
+        .dot-live { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .user-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer;
+        }
+
+        /* ──── Page Content ──── */
+        .content { padding: 2rem; flex: 1; }
+
+        /* ──── Stat Cards Row ──── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+        .stat-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .stat-card-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .stat-card-value { font-size: 2rem; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 0.25rem; }
+        .stat-card-sub { font-size: 0.82rem; color: var(--text-sub); }
+        .stat-up { color: var(--accent); }
+        .stat-down { color: var(--danger); }
+
+        /* ──── Two Column Grid ──── */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .panel-card-title {
+            font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* ──── Progress Bars ──── */
+        .resource-item { margin-bottom: 1.25rem; }
+        .resource-header { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.5rem; }
+        .resource-name { color: var(--text-sub); }
+        .resource-value { font-weight: 600; }
+        .progress-bar-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 8px; }
+        .progress-bar { height: 100%; border-radius: 999px; transition: width 1.2s ease; }
+
+        /* ──── Nginx Traffic Log ──── */
+        .log-terminal {
+            background: #060a12;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82rem;
+            height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .log-line { display: flex; gap: 0.75rem; }
+        .lt { color: var(--text-muted); }
+        .lm { color: #38bdf8; }
+        .le { color: var(--danger); }
+
+        /* ──── Connected Servers Table ──── */
+        .server-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .server-table th { color: var(--text-muted); font-weight: 600; text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-transform: uppercase; }
+        .server-table td { padding: 0.9rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .status-chip { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; }
+        .chip-online { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .chip-warn { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
+
+        /* ──── Buttons ──── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+            text-decoration: none; cursor: pointer; border: 1px solid transparent; transition: var(--transition);
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); color: #fff; box-shadow: 0 4px 14px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-1px); }
+        .btn-ghost { background: rgba(255, 255, 255, 0.05); border-color: var(--border); color: var(--text-main); }
+        .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+        /* ──── Toast ──── */
+        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast {
+            background: #1e293b; color: var(--text-main); border: 1px solid var(--border);
+            padding: 0.9rem 1.4rem; border-radius: var(--radius); box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.3s ease; font-size: 0.9rem;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* ──── Link to main site ──── */
+        .back-to-main { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-sub); text-decoration: none; font-size: 0.88rem; transition: var(--transition); }
+        .back-to-main:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <a href="/" class="sidebar-logo">
+            <div class="sidebar-logo-icon">A</div>
+            <div>
+                <div class="sidebar-logo-text">ApexTech</div>
+                <div class="sidebar-logo-badge">● Панель : 8080</div>
+            </div>
+        </a>
+
+        <div class="sidebar-section-title">Обзор</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active"><a href="#"><span class="sidebar-icon">📊</span> Дашборд</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showSection('analytics')"><span class="sidebar-icon">📈</span> Аналитика</a></li>
+            <li class="sidebar-item"><a href="#" onclick="showSection('monitor')"><span class="sidebar-icon">🖥️</span> Мониторинг</a></li>
+        </ul>
+
+        <div class="sidebar-section-title">Сервер</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="#" onclick="reloadNginxSim()"><span class="sidebar-icon">🔄</span> Перезагрузить Nginx</a></li>
+            <li class="sidebar-item"><a href="/docs.html"><span class="sidebar-icon">📄</span> Документация</a></li>
+            <li class="sidebar-item"><a href="/blog.html"><span class="sidebar-icon">📰</span> Блог</a></li>
+        </ul>
+
+        <div class="sidebar-section-title">Аккаунт</div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="/register-account.html"><span class="sidebar-icon">👤</span> Профиль</a></li>
+            <li class="sidebar-item"><a href="#pricing-panel" onclick="showSection('pricing')"><span class="sidebar-icon">💳</span> Управление тарифом</a></li>
+            <li class="sidebar-item"><a href="/contact.html"><span class="sidebar-icon">✉️</span> Поддержка</a></li>
+        </ul>
+
+        <div class="sidebar-port-tag">
+            <div style="color:#64748b; margin-bottom:0.4rem;">Активный порт:</div>
+            <div style="color:var(--accent);">192.168.60.38:<strong>8080</strong></div>
+            <div style="color:#334155; margin-top:0.4rem;">Основной сайт: :80</div>
+        </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <div class="topbar-title">Панель управления</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">Nginx Admin Dashboard • Port 8080</div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-badge">
+                    <span class="dot-live"></span>
+                    <span>Сервер Активен</span>
+                </div>
+                <a href="http://192.168.60.38" class="back-to-main">← Основной сайт (:80)</a>
+                <div class="user-avatar" title="Администратор">A</div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content" id="mainContent">
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-card-label">Запросов сегодня</div>
+                    <div class="stat-card-value" id="reqCounter">0</div>
+                    <div class="stat-card-sub"><span class="stat-up">▲ 18%</span> по сравнению со вчера</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">Время отклика</div>
+                    <div class="stat-card-value" id="latencyDisplay">—</div>
+                    <div class="stat-card-sub">Последнее измерение</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">Активный тариф</div>
+                    <div class="stat-card-value" style="font-size:1.4rem;">Старт</div>
+                    <div class="stat-card-sub"><a href="#" onclick="showSection('pricing')" style="color:var(--primary); text-decoration:none;">💳 Обновить тариф</a></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-label">Статус 404 страниц</div>
+                    <div class="stat-card-value" style="color:var(--accent);" id="errorCount">0</div>
+                    <div class="stat-card-sub">ошибок за сессию</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+
+                <!-- Left: Log + Resources -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <div class="panel-card">
+                        <div class="panel-card-title">🟢 Nginx Live Log (Port 8080)</div>
+                        <div class="log-terminal" id="logTerminal">
+                            <div class="log-line"><span class="lt">[14:41:00]</span><span class="lm">Server started on 0.0.0.0:8080</span></div>
+                            <div class="log-line"><span class="lt">[14:41:01]</span><span class="lm">GET / HTTP/1.1 — 200 OK</span></div>
+                        </div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="panel-card-title">⚙️ Ресурсы сервера</div>
+                        <div class="resource-item">
+                            <div class="resource-header"><span class="resource-name">CPU Нагрузка</span><span class="resource-value" id="cpuVal">24%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar" id="cpuBar" style="width:24%; background: linear-gradient(90deg, #6366f1, #a855f7);"></div></div>
+                        </div>
+                        <div class="resource-item">
+                            <div class="resource-header"><span class="resource-name">Использование RAM</span><span class="resource-value" id="ramVal">41%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar" id="ramBar" style="width:41%; background: linear-gradient(90deg, #10b981, #06b6d4);"></div></div>
+                        </div>
+                        <div class="resource-item">
+                            <div class="resource-header"><span class="resource-name">Дисковое пространство</span><span class="resource-value" id="diskVal">67%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar" id="diskBar" style="width:67%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Server table + Shortcuts -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <div class="panel-card">
+                        <div class="panel-card-title">🌐 Виртуальные хосты</div>
+                        <table class="server-table">
+                            <thead>
+                                <tr>
+                                    <th>Хост</th>
+                                    <th>Порт</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>akram.local</td>
+                                    <td>:80</td>
+                                    <td><span class="status-chip chip-online">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>akram.local</td>
+                                    <td>:8080</td>
+                                    <td><span class="status-chip chip-online">Online</span></td>
+                                </tr>
+                                <tr>
+                                    <td>192.168.60.38</td>
+                                    <td>:80</td>
+                                    <td><span class="status-chip chip-online">Online</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="panel-card-title">⚡ Быстрые действия</div>
+                        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <button class="btn btn-primary" onclick="measureLatency()">⚡ Проверить пинг</button>
+                            <button class="btn btn-ghost" onclick="reloadNginxSim()">🔄 Reload Nginx</button>
+                            <a href="http://192.168.60.38" class="btn btn-ghost">🌐 Основной сайт (:80)</a>
+                            <a href="/try-demo.html" class="btn btn-ghost">🖥️ Открыть Демо</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Management Section -->
+            <div class="panel-card" id="pricingPanel">
+                <div class="panel-card-title">💳 Управление тарифом</div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+                    <div style="background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem;">
+                        <div style="font-weight:700; margin-bottom:0.5rem;">Старт — 0 ₽/мес</div>
+                        <div style="color:var(--text-sub); font-size:0.88rem; margin-bottom:1rem;">Текущий тариф. Базовый доступ к 1 серверу.</div>
+                        <span class="status-chip chip-online">✓ Активен</span>
+                    </div>
+                    <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:var(--radius); padding:1.25rem;">
+                        <div style="font-weight:700; margin-bottom:0.5rem;">Про — 990 ₽/мес</div>
+                        <div style="color:var(--text-sub); font-size:0.88rem; margin-bottom:1rem;">Безлимит, SSL, Reverse Proxy, 24/7 поддержка.</div>
+                        <button class="btn btn-primary" onclick="buyPlan('Про', 990)" style="padding:0.5rem 1rem; font-size:0.84rem;">💳 Купить Про</button>
+                    </div>
+                    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius); padding:1.25rem;">
+                        <div style="font-weight:700; margin-bottom:0.5rem;">Бизнес — 2 990 ₽/мес</div>
+                        <div style="color:var(--text-sub); font-size:0.88rem; margin-bottom:1rem;">Кластер, балансировка, DDoS защита.</div>
+                        <button class="btn btn-ghost" onclick="buyPlan('Бизнес', 2990)" style="padding:0.5rem 1rem; font-size:0.84rem;">💳 Купить Бизнес</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ─── Toast ───
+        function showToast(msg) {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<span>ℹ️</span><span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
+
+        // ─── Latency Test ───
+        function measureLatency() {
+            const start = performance.now();
+            fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                .then(r => {
+                    const ms = Math.round(performance.now() - start);
+                    document.getElementById('latencyDisplay').innerText = `${ms} мс`;
+                    showToast(`⚡ Отклик сервера: ${ms} мс (HTTP ${r.status} OK)`);
+                })
+                .catch(() => showToast('❌ Сервер недоступен'));
+        }
+
+        // ─── Nginx Reload Simulate ───
+        function reloadNginxSim() {
+            showToast('🔄 Конфигурация Nginx перезагружена (nginx -s reload)');
+        }
+
+        // ─── Buy Plan ───
+        function buyPlan(name, price) {
+            const confirmed = confirm(`Оформить тариф «${name}» за ${price.toLocaleString()} ₽/мес?`);
+            if (confirmed) {
+                showToast(`🎉 Тариф «${name}» успешно активирован!`);
+                document.querySelector('.stat-card-value[style*="1.4rem"]').innerText = name;
+            }
+        }
+
+        // ─── Live Log Stream ───
+        const logPaths = ['/', '/docs.html', '/try-demo.html', '/contact.html', '/about.html', '/blog.html'];
+        setInterval(() => {
+            const terminal = document.getElementById('logTerminal');
+            const now = new Date().toLocaleTimeString();
+            const path = logPaths[Math.floor(Math.random() * logPaths.length)];
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = `<span class="lt">[${now}]</span><span class="lm">GET ${path} HTTP/1.1 — 200 OK (8080)</span>`;
+            terminal.appendChild(line);
+            if (terminal.children.length > 8) terminal.removeChild(terminal.firstChild);
+            terminal.scrollTop = terminal.scrollHeight;
+        }, 3500);
+
+        // ─── Request Counter ───
+        let reqCount = Math.floor(Math.random() * 5000) + 1200;
+        setInterval(() => {
+            reqCount += Math.floor(Math.random() * 5) + 1;
+            document.getElementById('reqCounter').innerText = reqCount.toLocaleString();
+        }, 3000);
+
+        // ─── Resource Bars Simulation ───
+        setInterval(() => {
+            const cpu = Math.floor(Math.random() * 60) + 10;
+            const ram = Math.floor(Math.random() * 40) + 30;
+            document.getElementById('cpuVal').innerText = cpu + '%';
+            document.getElementById('cpuBar').style.width = cpu + '%';
+            document.getElementById('ramVal').innerText = ram + '%';
+            document.getElementById('ramBar').style.width = ram + '%';
+        }, 5000);
+
+        // ─── Auto-Measure latency on load ───
+        window.addEventListener('load', () => setTimeout(measureLatency, 800));
+
+        // ─── Section show ───
+        function showSection(name) {
+            if (name === 'pricing') {
+                document.getElementById('pricingPanel').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>

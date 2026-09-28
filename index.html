@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexTech — Полноценная Веб-Платформа на Nginx</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0b0f19;
+            --bg-card: rgba(23, 31, 48, 0.75);
+            --bg-card-hover: rgba(30, 41, 64, 0.95);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.4);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --purple: #a855f7;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --toast-bg: #1e293b;
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
+            --radius-md: 14px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.5);
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --text-muted: #94a3b8;
+            --input-bg: #f1f5f9;
+            --toast-bg: #ffffff;
+            --shadow-glow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s; overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 65%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container { max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Navigation Header */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-color); transition: var(--transition);
+        }
+        [data-theme="light"] header { background: rgba(248, 250, 252, 0.85); }
+
+        .nav { display: flex; align-items: center; justify-content: space-between; height: 80px; }
+
+        .logo {
+            display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.4rem;
+        }
+        .logo-icon {
+            width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 900; box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .nav-menu { display: flex; align-items: center; gap: 1.75rem; list-style: none; }
+        .nav-link {
+            color: var(--text-sub); text-decoration: none; font-size: 0.95rem; font-weight: 500;
+            transition: var(--transition); position: relative; padding: 0.5rem 0;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--text-main); }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: var(--primary); border-radius: 2px;
+        }
+
+        .nav-actions { display: flex; align-items: center; gap: 1rem; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.7rem 1.4rem; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem;
+            text-decoration: none; cursor: pointer; border: 1px solid transparent; transition: var(--transition);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); color: #fff;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent) 0%, #059669 100%); color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05); color: var(--text-main); border-color: var(--border-color);
+        }
+        .btn-outline:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border-hover); transform: translateY(-2px); }
+
+        .theme-toggle {
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; transition: var(--transition);
+        }
+        .theme-toggle:hover { border-color: var(--primary); }
+
+        /* Hero Section */
+        .hero { padding: 150px 0 80px; text-align: center; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.4rem 1.1rem;
+            background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 9999px; font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 1.5rem;
+        }
+        .hero-badge-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .hero-title {
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3.6rem; font-weight: 800; line-height: 1.15;
+            letter-spacing: -0.03em; margin-bottom: 1.5rem; max-width: 950px; margin-left: auto; margin-right: auto;
+        }
+        .hero-title span { background: linear-gradient(135deg, var(--primary) 0%, #c084fc 50%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .hero-desc { font-size: 1.2rem; color: var(--text-sub); max-width: 700px; margin: 0 auto 2.5rem; }
+
+        /* Live Terminal Monitor */
+        .monitor-card {
+            max-width: 950px; margin: 3rem auto 0; background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 1.5rem; text-align: left; backdrop-filter: blur(12px); box-shadow: var(--shadow-glow);
+        }
+        .monitor-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+        .monitor-title { font-family: 'Fira Code', monospace; font-size: 0.9rem; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+        .terminal-body {
+            background: #090d16; border-radius: var(--radius-md); padding: 1.25rem; font-family: 'Fira Code', monospace; font-size: 0.85rem;
+            color: #38bdf8; height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem;
+        }
+        .log-entry { display: flex; gap: 1rem; }
+        .log-time { color: var(--text-muted); }
+        .log-info { color: #4ade80; }
+
+        /* Dynamic Pricing Calculator Section */
+        .calculator-box {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 3rem 2.5rem;
+            max-width: 850px; margin: 0 auto; backdrop-filter: blur(12px); margin-top: 2rem;
+        }
+        .slider-group { margin-bottom: 2rem; }
+        .slider-label { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-sub); }
+        .range-slider { width: 100%; height: 8px; border-radius: 5px; background: var(--input-bg); outline: none; accent-color: var(--primary); cursor: pointer; }
+        .calc-result { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 1.5rem 2rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+        .calc-price { font-size: 2.5rem; font-weight: 800; color: var(--primary); font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Pricing Section */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 2rem; align-items: center; }
+        .price-card {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem;
+            position: relative; transition: var(--transition);
+        }
+        .price-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+        .price-card.featured {
+            border-color: var(--primary); background: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, rgba(23, 31, 48, 0.95) 100%);
+            box-shadow: 0 0 35px var(--primary-glow); transform: scale(1.03);
+        }
+        .price-badge {
+            position: absolute; top: -14px; right: 24px; background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 9999px; text-transform: uppercase;
+        }
+        .price-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .price-val { font-size: 2.8rem; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; margin-bottom: 1.5rem; }
+        .price-val span { font-size: 0.95rem; color: var(--text-sub); font-weight: 400; }
+        .price-features { list-style: none; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.85rem; }
+        .price-feature { display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-sub); }
+        .price-feature::before { content: "✓"; color: var(--accent); font-weight: 800; }
+        
+        .payment-methods { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .payment-btn { flex: 1; padding: 0.65rem; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.85rem; cursor: pointer; text-align: center; }
+        .payment-btn.active { border-color: var(--primary); background: rgba(99, 102, 241, 0.2); font-weight: 600; }
+
+        /* Search & Filter Feature Section */
+        .search-box { max-width: 500px; margin: 0 auto 2.5rem; position: relative; }
+        .search-input {
+            width: 100%; padding: 0.9rem 1.25rem 0.9rem 3rem; background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: var(--radius-md); color: var(--text-main); font-size: 1rem; outline: none; transition: var(--transition);
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .feature-card {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; transition: var(--transition);
+        }
+        .feature-card:hover { background: var(--bg-card-hover); border-color: var(--border-hover); transform: translateY(-4px); box-shadow: var(--shadow-glow); }
+
+        /* Section Header */
+        .section-header { text-align: center; max-width: 650px; margin: 0 auto 3rem; }
+        .section-tag { color: var(--primary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; display: block; }
+        .section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.4rem; font-weight: 800; margin-bottom: 0.75rem; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: var(--transition);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: var(--bg-body); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem;
+            max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transform: translateY(20px); transition: var(--transition);
+        }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-close { background: none; border: none; color: var(--text-sub); font-size: 1.4rem; cursor: pointer; }
+
+        /* Toast Notifications */
+        .toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast {
+            background: var(--toast-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 1rem 1.5rem;
+            border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        footer { border-top: 1px solid var(--border-color); padding: 4rem 0 2rem; margin-top: 5rem; color: var(--text-sub); }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem; margin-bottom: 3rem; }
+        .footer-col h4 { color: var(--text-main); font-size: 1rem; margin-bottom: 1.25rem; }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+        .footer-links a { color: var(--text-sub); text-decoration: none; transition: var(--transition); }
+        .footer-links a:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="/" class="logo">
+                    <div class="logo-icon">A</div>
+                    <span>ApexTech</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link active">Главная</a></li>
+                    <li><a href="#features" class="nav-link">Возможности</a></li>
+                    <li><a href="#calculator" class="nav-link">Калькулятор</a></li>
+                    <li><a href="#pricing" class="nav-link">Тарифы</a></li>
+                    <li><a href="/try-demo.html" class="nav-link">Демо</a></li>
+                    <li><a href="about.html" class="nav-link">О нас</a></li>
+                    <li><a href="panel/index.html" class="nav-link" style="color:var(--accent);">Панель 8080</a></li>
+                    <li><a href="contact.html" class="nav-link">Контакты</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌙</button>
+                    <button class="btn btn-outline" onclick="openModal('authModal')">Вход</button>
+                    <a href="/register-account.html" class="btn btn-primary">Регистрация</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    <span id="userPlanBadge">Текущий тариф: Бесплатный Старт • Nginx Active</span>
+                </div>
+                <h1 class="hero-title">
+                    Полноценная экосистема <span>вашего локального веб-сервера</span>
+                </h1>
+                <p class="hero-desc">
+                    Многофункциональная веб-платформа с покупкой тарифов онлайн, маршрутизацией запросов, динамическим калькулятором ресурсов и поддержкой Nginx.
+                </p>
+                <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+                    <a href="#pricing" class="btn btn-primary">💳 Купить Тариф</a>
+                    <a href="/try-demo.html" class="btn btn-outline">Открыть Демо-Консоль</a>
+                    <button class="btn btn-outline" onclick="testLatency()">⚡ Проверить пинг</button>
+                </div>
+
+                <!-- Live Monitor Terminal -->
+                <div class="monitor-card">
+                    <div class="monitor-header">
+                        <div class="monitor-title">
+                            <span>🟢 Nginx Live Traffic Monitor</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Лог активности в реальном времени</div>
+                    </div>
+                    <div class="terminal-body" id="terminalLog">
+                        <div class="log-entry"><span class="log-time">[11:08:00]</span><span class="log-info">Nginx master process listening on 0.0.0.0:80</span></div>
+                        <div class="log-entry"><span class="log-time">[11:08:02]</span><span class="log-info">GET / HTTP/1.1 - 200 OK (akram.local)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section with Buy Tariff Buttons -->
+        <section class="container" id="pricing" style="padding: 60px 1.5rem;">
+            <div class="section-header">
+                <span class="section-tag">Тарифные планы</span>
+                <h2 class="section-title">Оформите и купите подписку онлайн</h2>
+                <p style="color:var(--text-sub);">Выберите подходящий тариф и оплатите моментально прямо на сайте</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Tariff 1: Start -->
+                <div class="price-card">
+                    <div class="price-name">Старт</div>
+                    <div class="price-val">0 ₽ <span>/ мес</span></div>
+                    <ul class="price-features">
+                        <li class="price-feature">1 локальный веб-сервер Nginx</li>
+                        <li class="price-feature">Статический HTML5/CSS3/JS</li>
+                        <li class="price-feature">Базовый роутинг маршрутов</li>
+                    </ul>
+                    <button class="btn btn-outline" style="width:100%;" onclick="openCheckoutModal('Старт', 0)">Подключить Бесплатно</button>
+                </div>
+
+                <!-- Tariff 2: Pro (Featured) -->
+                <div class="price-card featured">
+                    <div class="price-badge">Популярный</div>
+                    <div class="price-name">Про</div>
+                    <div class="price-val">990 ₽ <span>/ мес</span></div>
+                    <ul class="price-features">
+                        <li class="price-feature">Безлимитные домены и сокеты</li>
+                        <li class="price-feature">Reverse Proxy & Node.js/Python</li>
+                        <li class="price-feature">Автоматические SSL сертификаты</li>
+                        <li class="price-feature">Приоритетная поддержка 24/7</li>
+                    </ul>
+                    <button class="btn btn-primary" style="width:100%; font-size:1rem; padding:0.85rem;" onclick="openCheckoutModal('Про', 990)">💳 Купить Тариф Про (990 ₽)</button>
+                </div>
+
+                <!-- Tariff 3: Business -->
+                <div class="price-card">
+                    <div class="price-name">Бизнес</div>
+                    <div class="price-val">2 990 ₽ <span>/ мес</span></div>
+                    <ul class="price-features">
+                        <li class="price-feature">Кластер серверов и балансировка</li>
+                        <li class="price-feature">Защита от DDoS атак</li>
+                        <li class="price-feature">Выделенный DevOps менеджер</li>
+                    </ul>
+                    <button class="btn btn-success" style="width:100%; font-size:1rem; padding:0.85rem;" onclick="openCheckoutModal('Бизнес', 2990)">💳 Купить Тариф Бизнес (2 990 ₽)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Calculator Section -->
+        <section class="container" id="calculator" style="padding: 60px 1.5rem;">
+            <div class="section-header">
+                <span class="section-tag">Интерактивный калькулятор</span>
+                <h2 class="section-title">Рассчитайте параметры вашего сервера</h2>
+            </div>
+            <div class="calculator-box">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Нагрузка (Запросов в день):</span>
+                        <span id="requestsValue" style="color:var(--primary);">50,000 req</span>
+                    </div>
+                    <input type="range" min="10000" max="1000000" step="10000" value="50000" class="range-slider" id="requestsSlider" oninput="updateCalc()">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Объем трафика (ГБ / месяц):</span>
+                        <span id="bandwidthValue" style="color:var(--accent);">100 GB</span>
+                    </div>
+                    <input type="range" min="10" max="2000" step="10" value="100" class="range-slider" id="bandwidthSlider" oninput="updateCalc()">
+                </div>
+                <div class="calc-result">
+                    <div>
+                        <div style="font-size:0.9rem; color:var(--text-sub);">Рекомендуемый тариф:</div>
+                        <div id="recommendedPlan" style="font-size:1.4rem; font-weight:700; color:var(--text-main);">Тариф «Старт»</div>
+                    </div>
+                    <button class="btn btn-primary" id="calcBuyBtn" onclick="buyFromCalc()">Купить за 0 ₽ / мес</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Searchable Features Section -->
+        <section class="container" id="features" style="padding: 60px 1.5rem;">
+            <div class="section-header">
+                <span class="section-tag">Возможности платформы</span>
+                <h2 class="section-title">Модули веб-сервера ApexTech</h2>
+            </div>
+
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" id="featureSearch" placeholder="Поиск по модулям и возможностям..." onkeyup="filterFeatures()">
+            </div>
+
+            <div class="features-grid" id="featuresList">
+                <div class="feature-card" data-name="маршрутизация routing nginx proxy">
+                    <div style="font-size:2rem; margin-bottom:1rem;">⚡</div>
+                    <h3 style="margin-bottom:0.5rem;">Умная Маршрутизация</h3>
+                    <p style="color:var(--text-sub); font-size:0.95rem;">Динамический роутинг между статикой и Reverse Proxy для Node.js/Python приложений.</p>
+                </div>
+                <div class="feature-card" data-name="безопасность ssl tls защита ddos">
+                    <div style="font-size:2rem; margin-bottom:1rem;">🛡️</div>
+                    <h3 style="margin-bottom:0.5rem;">Безопасность и SSL</h3>
+                    <p style="color:var(--text-sub); font-size:0.95rem;">Поддержка TLS 1.3, ограничение частоты запросов (rate limiting) и фильтрация спама.</p>
+                </div>
+                <div class="feature-card" data-name="производительность кэширование cache speed">
+                    <div style="font-size:2rem; margin-bottom:1rem;">🚀</div>
+                    <h3 style="margin-bottom:0.5rem;">Кэширование Контента</h3>
+                    <p style="color:var(--text-sub); font-size:0.95rem;">Мгновенный отклик сервера за счет встроенного памяти-кэша статического контента.</p>
+                </div>
+                <div class="feature-card" data-name="мониторинг логи аналитика status">
+                    <div style="font-size:2rem; margin-bottom:1rem;">📊</div>
+                    <h3 style="margin-bottom:0.5rem;">Мониторинг 24/7</h3>
+                    <p style="color:var(--text-sub); font-size:0.95rem;">Отслеживание метрик работы сервера Nginx в реальном времени с логированием ошибок.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Authorization Popup -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="font-size:1.3rem;">Вход в Личный Кабинет</h3>
+                <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block; font-size:0.85rem; color:var(--text-sub); margin-bottom:0.4rem;">Email</label>
+                    <input type="email" required placeholder="admin@akram.local" style="width:100%; padding:0.75rem; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; color:var(--text-main); outline:none;">
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block; font-size:0.85rem; color:var(--text-sub); margin-bottom:0.4rem;">Пароль</label>
+                    <input type="password" required placeholder="••••••••" style="width:100%; padding:0.75rem; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; color:var(--text-main); outline:none;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tariff Checkout Payment Popup -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 style="font-size:1.3rem;">💳 Оплата и покупка тарифа</h3>
+                <button class="modal-close" onclick="closeModal('checkoutModal')">&times;</button>
+            </div>
+            <div style="margin-bottom:1.25rem; background:rgba(99,102,241,0.1); border:1px solid var(--primary-glow); padding:1rem; border-radius:12px;">
+                <div style="font-size:0.85rem; color:var(--text-sub);">Выбранный тариф:</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.3rem;">
+                    <span id="checkoutPlanName" style="font-size:1.2rem; font-weight:700;">Тариф «Про»</span>
+                    <span id="checkoutPlanPrice" style="font-size:1.4rem; font-weight:800; color:var(--primary);">990 ₽</span>
+                </div>
+            </div>
+
+            <form onsubmit="processPayment(event)">
+                <label style="display:block; font-size:0.85rem; color:var(--text-sub); margin-bottom:0.5rem;">Способ оплаты:</label>
+                <div class="payment-methods">
+                    <div class="payment-btn active" onclick="selectPayment(this)">💳 Карта</div>
+                    <div class="payment-btn" onclick="selectPayment(this)">📱 СБП</div>
+                    <div class="payment-btn" onclick="selectPayment(this)">🟣 ЮMoney</div>
+                </div>
+
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block; font-size:0.85rem; color:var(--text-sub); margin-bottom:0.4rem;">Номер карты / Телефон</label>
+                    <input type="text" required placeholder="2200 •••• •••• 1234" style="width:100%; padding:0.75rem; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; color:var(--text-main); outline:none;">
+                </div>
+
+                <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.8rem; color:var(--text-sub); margin-bottom:0.4rem;">Срок</label>
+                        <input type="text" placeholder="12/28" required style="width:100%; padding:0.75rem; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; color:var(--text-main); outline:none;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.8rem; color:var(--text-sub); margin-bottom:0.4rem;">CVC</label>
+                        <input type="password" placeholder="•••" required maxlength="3" style="width:100%; padding:0.75rem; background:var(--input-bg); border:1px solid var(--border-color); border-radius:8px; color:var(--text-main); outline:none;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="paySubmitBtn" style="width:100%; font-size:1rem; padding:0.85rem;">Оплатить и Активировать</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="/" class="logo" style="margin-bottom:1rem;">
+                        <div class="logo-icon">A</div>
+                        <span>ApexTech</span>
+                    </a>
+                    <p style="font-size:0.9rem;">Полноценный веб-сервер и платформа на базе Nginx.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Страницы проекта</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Главная</a></li>
+                        <li><a href="/try-demo.html">Демо-консоль</a></li>
+                        <li><a href="/docs.html">Документация</a></li>
+                        <li><a href="/blog.html">Блог & Новости</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Тарифы и Покупка</h4>
+                    <ul class="footer-links">
+                        <li><a href="#pricing">Тариф Старт (0 ₽)</a></li>
+                        <li><a href="#pricing">Тариф Про (990 ₽)</a></li>
+                        <li><a href="#pricing">Тариф Бизнес (2990 ₽)</a></li>
+                        <li><a href="/register-account.html">Регистрация</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Поддержка & Тест</h4>
+                    <ul class="footer-links">
+                        <li><a href="/contact.html">Контакты</a></li>
+                        <li><a href="/non-existent-page">Тест ошибки 404</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="border-top:1px solid var(--border-color); padding-top:1.5rem; text-align:center; font-size:0.85rem;">
+                &copy; 2026 ApexTech Web Platform. Nginx / akram.local (192.168.60.38).
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript Application Logic -->
+    <script>
+        let currentTargetPlan = { name: 'Про', price: 990 };
+
+        // Dark / Light Theme Toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            showToast(`Переключена тема: ${newTheme === 'dark' ? 'Тёмная 🌙' : 'Светлая ☀️'}`);
+        }
+
+        // Restore Theme Preference
+        if (localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme'));
+        }
+
+        // Open Checkout Modal
+        function openCheckoutModal(name, price) {
+            currentTargetPlan = { name, price };
+            document.getElementById('checkoutPlanName').innerText = `Тариф «${name}»`;
+            document.getElementById('checkoutPlanPrice').innerText = price === 0 ? 'Бесплатно' : `${price.toLocaleString()} ₽ / мес`;
+            document.getElementById('paySubmitBtn').innerText = price === 0 ? 'Подключить бесплатно' : `Оплатить ${price.toLocaleString()} ₽`;
+            openModal('checkoutModal');
+        }
+
+        function buyFromCalc() {
+            const planName = document.getElementById('recommendedPlan').innerText.replace('Тариф «', '').replace('»', '');
+            let price = 0;
+            if (planName === 'Про') price = 990;
+            if (planName === 'Бизнес') price = 2990;
+            openCheckoutModal(planName, price);
+        }
+
+        function selectPayment(el) {
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function processPayment(e) {
+            e.preventDefault();
+            const btn = document.getElementById('paySubmitBtn');
+            btn.innerText = '⌛ Обработка платежа...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerText = 'Оплатить и Активировать';
+                btn.disabled = false;
+                closeModal('checkoutModal');
+                
+                // Update Badge
+                document.getElementById('userPlanBadge').innerText = `Активный тариф: «${currentTargetPlan.name}» (Оплачен) • Nginx Active`;
+                showToast(`🎉 Покупка успешна! Тариф «${currentTargetPlan.name}» успешно активирован!`);
+            }, 1200);
+        }
+
+        // Live Calculator Logic
+        function updateCalc() {
+            const req = parseInt(document.getElementById('requestsSlider').value);
+            const bw = parseInt(document.getElementById('bandwidthSlider').value);
+
+            document.getElementById('requestsValue').innerText = req.toLocaleString() + ' req';
+            document.getElementById('bandwidthValue').innerText = bw + ' GB';
+
+            let price = 0;
+            let planName = 'Тариф «Старт»';
+
+            if (req > 200000 || bw > 500) {
+                price = 2990;
+                planName = 'Тариф «Бизнес»';
+            } else if (req > 50000 || bw > 100) {
+                price = 990;
+                planName = 'Тариф «Про»';
+            }
+
+            document.getElementById('recommendedPlan').innerText = planName;
+            document.getElementById('calcBuyBtn').innerText = `Купить за ${price.toLocaleString()} ₽ / мес`;
+        }
+
+        // Search Filter Logic
+        function filterFeatures() {
+            const query = document.getElementById('featureSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('#featuresList .feature-card');
+
+            cards.forEach(card => {
+                const keywords = card.getAttribute('data-name');
+                if (keywords.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Latency Test
+        function testLatency() {
+            const start = performance.now();
+            fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                .then(res => {
+                    const ms = Math.round(performance.now() - start);
+                    showToast(`⚡ Отклик сервера: ${ms} мс (HTTP ${res.status} OK)`);
+                })
+                .catch(() => showToast('❌ Ошибка отклика сервера'));
+        }
+
+        // Toast Notification Helper
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>ℹ️</span> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // Modal Controls
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function handleLogin(e) {
+            e.preventDefault();
+            closeModal('authModal');
+            showToast('✅ Вы успешно вошли в личный кабинет!');
+        }
+
+        // Live Log Stream Simulation
+        setInterval(() => {
+            const terminal = document.getElementById('terminalLog');
+            if (terminal) {
+                const now = new Date().toLocaleTimeString();
+                const paths = ['/', '/try-demo.html', '/about.html', '/contact.html', '/docs.html'];
+                const randomPath = paths[Math.floor(Math.random() * paths.length)];
+                const log = document.createElement('div');
+                log.className = 'log-entry';
+                log.innerHTML = `<span class="log-time">[${now}]</span><span class="log-info">GET ${randomPath} HTTP/1.1 - 200 OK</span>`;
+                terminal.appendChild(log);
+                if (terminal.children.length > 6) terminal.removeChild(terminal.firstChild);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }, 4500);
+    </script>
+</body>
+</html>
